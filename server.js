@@ -3,6 +3,10 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const app = express();
 const port = 3000;
+const GYM_LOCATIONS = require('./config/config');
+
+// make env variables available
+require('dotenv').config();
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -24,6 +28,7 @@ app.get('/gym-status', async (req, res) => {
     .split('\n')
     .filter((content) => content.length < 3 && content.includes('%'))[0];
   console.log(status);
+  console.log('test config', process.env);
 
   res.send($.html());
 });
