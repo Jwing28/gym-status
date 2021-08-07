@@ -19,14 +19,11 @@ app.get('/gym-status', async (req, res) => {
   }
   const $ = await fetchHTML('https://ffc.com/club-locations/lincoln-park/');
 
-  const status = $('p')
-    .filter(() => {
-      return $(this).text().trim() === 'Current Capacity';
-    })
-    .next()
-    .text();
-
-  console.log('status', status);
+  const parent = $('.avia_textblock', '.av_textblock_section').text();
+  const status = parent
+    .split('\n')
+    .filter((content) => content.length < 3 && content.includes('%'))[0];
+  console.log(status);
 
   res.send($.html());
 });
