@@ -1,5 +1,5 @@
 const express = require('express');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const cheerio = require('cheerio');
 const app = express();
 const port = 3000;
@@ -13,19 +13,22 @@ const isGymStatus = (number, el) => {
 };
 
 app.get('/gym-status', async (req, res) => {
-  const response = await fetch(
-    'https://ffc.com/club-locations/lincoln-park/'
-  ).then((response) => {
-    const $ = cheerio.load(response.body);
+  async function fetchHTML(url) {
+    const { data } = await axios.get(url);
+    return cheerio.load(data);
+  }
+  const $ = await fetchHTML('https://ffc.com/club-locations/lincoln-park/');
 
-    $('av_textblock_section ')
-      .filter(isGymStatus)
-      .each((number, el) => {
-        console.log({ number, el });
-      });
-    // this response is html...
-    console.log(JSON.stringify(response));
-  });
+  const status = $('p')
+    .filter(() => {
+      return $(this).text().trim() === 'Current Capacity';
+    })
+    .next()
+    .text();
+
+  console.log('status', status);
+
+  res.send($.html());
 });
 
 app.listen(port, () => {
